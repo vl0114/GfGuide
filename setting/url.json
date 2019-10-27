@@ -1,0 +1,21 @@
+{
+  "url":
+  {
+    "github": "https://github.com",
+    "api":
+    {
+      "oauth": "/login/oauth/authorize",
+      "token": "/login/oauth/access_token"
+    }
+  },
+  "subpage":
+  {
+    "auth":
+    {
+      "login": "/login",
+      "logout": "/logout",
+      "callback": "/cb",
+    }
+  }
+
+}

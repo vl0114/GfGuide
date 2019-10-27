@@ -1,0 +1,9 @@
+README.rst
+setup.cfg
+setup.py
+randstr/__init__.py
+randstr.egg-info/PKG-INFO
+randstr.egg-info/SOURCES.txt
+randstr.egg-info/dependency_links.txt
+randstr.egg-info/not-zip-safe
+randstr.egg-info/top_level.txt
