@@ -23,4 +23,3 @@ class GHLogin:
         ret = request.json()
         token = ret['access_token']
         return token
-

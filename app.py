@@ -3,7 +3,7 @@ from src import GitHubLogin, GithubUser
 import randstr
 
 app = Flask(__name__)
-app.secret_key = 'dsadadsadasdadadsa'
+app.secret_key = 'dsadadsadasdadadsa'  # randstr.randstr(40)
 
 
 #### page ####
@@ -118,7 +118,7 @@ def callback():
 ## 부모창 새로고침, 현재창 닫기
 @app.route('/auth/login_success')
 def login_success():
-    return '<head></head><body><script>opener.location.reload();close();</script></body>'
+    return '<html?<head></head><body><script>opener.location.reload();close();</script></body></html>'
 
 
 ## 로그인 상태
