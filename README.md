@@ -31,4 +31,9 @@ Git과 GitHub를 보다 쉽게 배우기 위한 사이트
  - Popper.js
  - JQuery
 
+사용 라이브러리
+ - Psycopg2
+ - randstr
+ - requests
+ 
 #
