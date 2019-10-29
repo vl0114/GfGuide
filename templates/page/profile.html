@@ -108,8 +108,16 @@
                     </h2>
                     <div class="repo-cards w-100">
                         <div class="repo-card w-100">
-                            <h4>Title</h4>
-                            <h5>maked</h5>
+                            <h4>타이틀</h4>
+                            <h5>만든날</h5>
+                            <h6>pull request</h6>
+                            <h6>commit</h6>
+                            <h6>fork</h6>
+                            <h6>License</h6>
+                        </div>
+                        <div class="repo-card w-100">
+                            <h4>타이틀</h4>
+                            <h5>만든날</h5>
                             <h6>pull request</h6>
                             <h6>commit</h6>
                             <h6>fork</h6>
@@ -139,7 +147,7 @@
     <!-- footer banner -->
     <div class="row">
 	<div class="col-12 w-100 m-0 bottom-wrapper"> <!-- 변경 필요 [색상, 배너 패딩] -->
-            <p class="text-muted text-center" style="margin-top: 10px; margin-bottom: 10px">© GhGuide 2019 based on GitHub</p>
+            <a href="/license" class="text-muted text-center" style="margin-top: 10px; margin-bottom: 10px">© GhGuide 2019 based on GitHub</a>
 	</div></div>
 </div>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -150,7 +158,10 @@
 <script type="text/javascript" src="{{ url_for("static", filename="js/page/profile.js") }}"></script>
 <script>
     checkLogin();
-    init();
+    window.onload = function(){
+        init();
+    };
+
 
 </script>
 

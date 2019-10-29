@@ -1,7 +1,7 @@
 from flask import Flask, redirect, request, session, render_template, url_for, abort
 from src import GitHubLogin, GithubUser
 import randstr
-
+from src import gh_init
 app = Flask(__name__)
 app.secret_key = 'dsadadsadasdadadsa'  # randstr.randstr(40)
 
@@ -98,7 +98,7 @@ def login():
 ## 요청 콜백 핸들러
 @app.route('/auth/cb')
 def callback():
-    # session['temp'] = 4
+    session['temp'] = 4
     code = request.args.get('code')
     l_key = request.args.get('state')
     if code is None or l_key is None:
@@ -165,4 +165,5 @@ def repos():
     return gh.repo_list_json()
 
 if __name__ == '__main__':
+    gh_init.gh_init()
     app.run()
