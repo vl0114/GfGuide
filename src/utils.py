@@ -66,3 +66,8 @@ def filter_json_dict_keys(json_dict, regex: str, white_list: list):
 # xss 공격 검사
 def filter_xss(contents: str):
     pass
+
+
+# sql injection 검사
+def filter_sql_inj(contents: str):
+    pass
