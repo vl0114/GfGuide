@@ -10,5 +10,10 @@ jquery ```MIT License``` ```https://jquery.com/```<br>
 vue.js ```MIT License``` ```https://vuejs.org/```<br>
 popper.js ```MIT License``` ```https://popper.js.org```<br>
 
+## 라이브러리
+psycopg2 `LGPL` `https://github.com/psycopg/psycopg2`<br>
+randstr `BSD-3-Clause` `https://github.com/ionrock/randstr`<br>
+requests `Apache` `https://github.com/psf/requests`
+
 ## Api
 GitHub Api ```https://developer.github.com/```

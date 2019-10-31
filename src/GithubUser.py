@@ -2,44 +2,79 @@
 ## DB 혹은 메모리에 케싱된다
 
 
-from . import GitHubAPI
+from . import GitHubAPI, gh_db
 import json, re
 from . import utils
 
+'''
+ret['id'],
+ret['login'],
+ret['html_url'],
+ret['name'],
+ret['company'],
+ret['blog'],
+ret['location'],
+ret['email'],
+ret['public_repos'],
+ret['public_gists'],
+ret['followers'],
+ret['following'],
+ret['created']
+ret['updated']
+ret['created_this']
+ret['updated_this']
+'''
+
 class GitHubUser:
-
-    def __init__(self, gh_token):
-        self.gapi = GitHubAPI.GitHubAPI(gh_token)
+    def __init__(self, token):
+        self.gapi = GitHubAPI.GitHubAPI(token)
         self.gapi.requestUser()
-        self.gapi.requestRepo()
-        self.token = gh_token
+        self.user_dict = self.gapi.getUser()
+        self.gh_id = self.user_dict['id']
+        self.user_db = gh_db.guser(self.gh_id)
 
-    def user_name(self):
-        return self.gapi.getUser()['login']
+    def set_token(self, token: str):
+        self.gapi = GitHubAPI.GitHubAPI(token)
+
+    def update_db(self):
+        self.gapi.requestUser()
+        self.user_dict = self.gapi.getUser()
+        self.user_db.update_user_cache(self.user_dict)
+
+    def get_db(self):
+        self.user_db.request_user_cache()
+        self.user_dict = self.user_db.user_cache
+
+    def user_login(self):
+        self.user_db.registe_user_data()
+        self.user_db.update_user_cache(self.user_dict)
 
     def prof_img(self):
-        uid = self.gapi.getUser()['id']
+        uid = self.user_db.user_cache['id']
         return 'https://avatars0.githubusercontent.com/u/{}'.format(uid)
 
+    def user_name(self):
+        return self.user_db.user_cache['login']
+
     def user_site(self):
-        return self.gapi.getUser()['html_url']
+        return self.user_db.user_cache['html_url']
 
-    def repo_list_json(self):
-        #repo_dict = dict()
-        repo_dict_list = json.loads(self.gapi.repo_json)
-        copy_dict = dict()
-        copy_dict_list = list()
-        reg = re.compile('.*_url')
+    def refresh_user_data(self):
+        self.user_db.get_user_by_gh_id()
 
-        for j in range(len(repo_dict_list)):
-            for i in (repo_dict_list[j]).keys():
-                if i in ["html_url", 'git_url', 'ssh_url', 'clone_url', 'svn_url', 'mirror_url']:
-                    continue
-                if reg.match(i) is None:
-                    copy_dict[i] = repo_dict_list[j][i]
-            copy_dict_list.append(copy_dict)
-            copy_dict = dict()
+    def get_uid(self):
+        return self.user_db.user_data['uid']
 
-        return json.dumps(copy_dict_list)
 
+class GitHubRepo:
+    def __init__(self, token, uid):
+        self.repo_db = gh_db.grepo(token, uid)
+        self.repo_db.get_from_db()
+
+    def refresh_repos(self):
+        self.repo_db.request_repo()
+        self.repo_db.put_db()
+
+    def get_repos_json(self):
+        return json.dumps(self.repo_db.repo_list)
 

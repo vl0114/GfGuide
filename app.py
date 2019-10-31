@@ -1,5 +1,5 @@
 from flask import Flask, redirect, request, session, render_template, url_for, abort
-from src import GitHubLogin, GithubUser
+from src import GitHubLogin, GithubUser, caching
 import randstr
 from src import gh_init
 app = Flask(__name__)
@@ -22,7 +22,7 @@ def index():
 def profile():
     if 'gh_token' not in session:
         abort(403)
-    api = GithubUser.GitHubUser(session['gh_token'])
+    api = caching.Caching.get(session['user_manager'])
     return render_template('page/profile.html',
                            img_src=api.prof_img(),
                            user_name=api.user_name(),
@@ -115,9 +115,29 @@ def callback():
     return redirect('/auth/login_success')
 
 
-## 부모창 새로고침, 현재창 닫기
+## 부모창 새로고침, 현재창 닫기, 필요한 함수 요청
 @app.route('/auth/login_success')
 def login_success():
+    if 'gh_token' not in session:
+        abort(403)
+    if 'user_manager' not in session:
+        caching.Caching.rm(session['user_manager'])
+    if 'repo_manager' not in session:
+        caching.Caching.rm(session['repo_manager'])
+
+    try:
+        chk = session['login_key'] + 'user'
+        caching.Caching.save(chk, GithubUser.GitHubUser(session['gh_token']))
+        session['user_manager'] = chk
+        chk = session['login_key'] + 'repo'
+        caching.Caching.save(chk, GithubUser.GitHubRepo(session['gh_token'], session['uid']))
+        session['repo_manager'] = chk
+
+        caching.Caching.get(session['user_manager']).user_login()
+        session['uid'] = caching.Caching.get(session['user_manager']).refresh_user_data()
+        session['uid'] = caching.Caching.get(session['user_manager']).get_uid()
+    except:
+        abort(503)
     return '<html?<head></head><body><script>opener.location.reload();close();</script></body></html>'
 
 
@@ -161,8 +181,15 @@ def session_clear():
 def repos():
     if 'gh_token' not in session:
         return '', 403
-    gh = GithubUser.GitHubUser(session['gh_token'])
-    return gh.repo_list_json()
+
+    return caching.Caching.get(session['repo_manager']).get_repos_json()
+
+
+@app.route('/api/repos/refresh')
+def repo_refresh():
+    caching.Caching.get(session['repo_manager']).refresh_repos()
+    return 'OK'
+
 
 if __name__ == '__main__':
     gh_init.gh_init()

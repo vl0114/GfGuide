@@ -9,7 +9,7 @@ class GitHubAPI:
     def __init__(self, gh_tk):
         self.token = gh_tk
         self.user_dict = None
-        self.repo_json = None
+        self.repo_dict = None
 
     def requestUser(self):
         headers = {'Content-Type': 'application/json',
@@ -24,9 +24,6 @@ class GitHubAPI:
         headers = {'Content-Type': 'application/json',
                    'Authorization': 'token ' + self.token}
         request = requests.request('GET', url='https://api.github.com/user/repos', headers=headers)
-        self.repo_json = request.content
+        self.repo_dict = request.json()
 
 
-
-    def getRepo(self):
-        return self.repo_dict
