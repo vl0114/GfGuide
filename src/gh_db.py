@@ -84,6 +84,7 @@ ret['followers'] = res[10]
 ret['following'] = res[11]
 '''
 
+
 class grepo:  # 리포지토리
     def __init__(self, token: str, uid: int):
         self.uid = uid
@@ -139,7 +140,6 @@ class grepo:  # 리포지토리
 
             self.repo_list.append(copy_repo)
 
-
     def get_from_db(self):
         if self.psql.get(f"select count(*) from gh_repo_caching where uid = {self.uid}")[0][0] == 0:
             self.request_repo()
@@ -163,33 +163,34 @@ class grepo:  # 리포지토리
                 self.psql.send(self.pq.dict_to_update(i, 'gh_repo_caching', f'repo_id = {i["repo_id"]}'))
                 self.psql.commit()
 
+
 class guser:  # 유저
     def __init__(self, gh_id: int):
         self.gh_id = gh_id
 
         # using in guser
         self.user_data = dict()
-        self.user_data['uid'] = -1       # 관리용 user id
-        self.user_data['registe'] = ''   # 시스템 등록날
-        self.user_data['code'] = 0       # code
-        self.user_data['opl'] = 0        # 관리자 레벨
+        self.user_data['uid'] = -1  # 관리용 user id
+        self.user_data['registe'] = ''  # 시스템 등록날
+        self.user_data['code'] = 0  # code
+        self.user_data['opl'] = 0  # 관리자 레벨
         self.user_data['gh_id'] = gh_id  # github 고유 id
-        self.user_data['status'] = 0     # 계정 상태         # 0:보통, -1:탈퇴, -2:임시조치
+        self.user_data['status'] = 0  # 계정 상태         # 0:보통, -1:탈퇴, -2:임시조치
 
         # using in gh_user_cache
         self.user_cache = dict()
-        self.user_cache['id'] = gh_id           # github id
-        self.user_cache['login'] = ''           # github 이름
-        self.user_cache['html_url'] = ''        # github page
-        self.user_cache['name'] = ''            # 이름
-        self.user_cache['company'] = ''         # 회사
-        self.user_cache['blog'] = ''            # 블로그
-        self.user_cache['location'] = ''        # 장소
-        self.user_cache['email'] = ''           # 이메일
-        self.user_cache['public_repos'] = 0     # public repo 수
-        self.user_cache['public_gists'] = 0     # public gist 수
-        self.user_cache['followers'] = 0        # 팔로워수
-        self.user_cache['following'] = 0        # 팔로우수
+        self.user_cache['id'] = gh_id  # github id
+        self.user_cache['login'] = ''  # github 이름
+        self.user_cache['html_url'] = ''  # github page
+        self.user_cache['name'] = ''  # 이름
+        self.user_cache['company'] = ''  # 회사
+        self.user_cache['blog'] = ''  # 블로그
+        self.user_cache['location'] = ''  # 장소
+        self.user_cache['email'] = ''  # 이메일
+        self.user_cache['public_repos'] = 0  # public repo 수
+        self.user_cache['public_gists'] = 0  # public gist 수
+        self.user_cache['followers'] = 0  # 팔로워수
+        self.user_cache['following'] = 0  # 팔로우수
 
         self.psql = db.psql()
 
@@ -198,7 +199,7 @@ class guser:  # 유저
             self.psql.send(f"insert into guser (ghid) values ({self.gh_id})")
             self.psql.commit()
 
-    def set_user_data(self, res: tuple): # uid, registe_date, code, opl, ghid, status
+    def set_user_data(self, res: tuple):  # uid, registe_date, code, opl, ghid, status
         self.user_data['uid'] = res[0]
         self.user_data['registe'] = res[1]
         self.user_data['code'] = res[2]
@@ -234,7 +235,8 @@ class guser:  # 유저
 
     ########
 
-    def set_user_cache(self, res: tuple): # ghid, gh_login, html_url, user_name, company, blog, loc, email, public_repos, public_gists, followers, followings
+    def set_user_cache(self,
+                       res: tuple):  # ghid, gh_login, html_url, user_name, company, blog, loc, email, public_repos, public_gists, followers, followings
         self.user_cache['id'] = res[0]
         self.user_cache['login'] = res[1]
         self.user_cache['html_url'] = res[2]
@@ -262,35 +264,34 @@ class guser:  # 유저
                 "insert into gh_user_caching (ghid, gh_login, html_url, user_name, company,"
                 "blog, loc, email, public_repos, public_gists, followers, followings) values"
                 "({}, '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, {})"
-                .format(self.user_cache['id'],
-                        self.user_cache['login'],
-                        self.user_cache['html_url'],
-                        self.user_cache['name'],
-                        self.user_cache['company'],
-                        self.user_cache['blog'],
-                        self.user_cache['location'],
-                        self.user_cache['email'],
-                        self.user_cache['public_repos'],
-                        self.user_cache['public_gists'],
-                        self.user_cache['followers'],
-                        self.user_cache['following']))
+                    .format(self.user_cache['id'],
+                            self.user_cache['login'],
+                            self.user_cache['html_url'],
+                            self.user_cache['name'],
+                            self.user_cache['company'],
+                            self.user_cache['blog'],
+                            self.user_cache['location'],
+                            self.user_cache['email'],
+                            self.user_cache['public_repos'],
+                            self.user_cache['public_gists'],
+                            self.user_cache['followers'],
+                            self.user_cache['following']))
             self.psql.commit()
         else:
             self.psql.send(
                 "update gh_user_caching set gh_login='{}', html_url='{}', user_name='{}', company='{}',"
                 "blog='{}', loc='{}', email='{}', public_repos={}, public_gists={}, "
                 "followers={}, followings={}, updated_this=now() where ghid={}"
-                .format(self.user_cache['login'],
-                        self.user_cache['html_url'],
-                        self.user_cache['name'],
-                        self.user_cache['company'],
-                        self.user_cache['blog'],
-                        self.user_cache['location'],
-                        self.user_cache['email'],
-                        self.user_cache['public_repos'],
-                        self.user_cache['public_gists'],
-                        self.user_cache['followers'],
-                        self.user_cache['following'],
-                        self.user_cache['id']))
+                    .format(self.user_cache['login'],
+                            self.user_cache['html_url'],
+                            self.user_cache['name'],
+                            self.user_cache['company'],
+                            self.user_cache['blog'],
+                            self.user_cache['location'],
+                            self.user_cache['email'],
+                            self.user_cache['public_repos'],
+                            self.user_cache['public_gists'],
+                            self.user_cache['followers'],
+                            self.user_cache['following'],
+                            self.user_cache['id']))
             self.psql.commit()
-
