@@ -7,7 +7,7 @@ function init() {
 }
 
 function getRepo() {
-    request = new XMLHttpRequest();
+    let request = new XMLHttpRequest();
     request.open("GET", "/api/repos");
     request.onreadystatechange = function () {
         if (request.status === 200) {
@@ -31,10 +31,20 @@ function getRepo() {
 </div>
 
  */
-
+let app = new Vue({
+      el: '#rc',
+      data: {
+        repos: []
+      },
+      delimiters: ['[[',']]']
+});
 function render(json_data) {
+    repo_json = JSON.parse(json_data.toString());
 
-    repo_json = JSON.parse(json_data);
+    document.getElementById("rc").style.display = "flex";
+
+    app.repos = repo_json;
+    app.forceUpdate();
 
 
 }
@@ -49,4 +59,18 @@ function render(json_data) {
 function setFilter(visibility)
 {
 
+}
+
+
+
+function prof_refresh() {
+    let request = new XMLHttpRequest();
+    request.open("GET", "/api/repos/refresh");
+    request.onreadystatechange = function () {
+        if (request.status === 200) {
+            repo_json_str = request.responseText;
+            getRepo();
+        }
+    };
+    request.send();
 }

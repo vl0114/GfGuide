@@ -23,7 +23,7 @@ class GitHubAPI:
     def requestRepo(self):
         headers = {'Content-Type': 'application/json',
                    'Authorization': 'token ' + self.token}
-        request = requests.request('GET', url='https://api.github.com/user/repos', headers=headers)
+        request = requests.request('GET', url='https://api.github.com/user/repos?visibility=public', headers=headers)
         self.repo_dict = request.json()
 
 

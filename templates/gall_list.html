@@ -65,26 +65,7 @@
     <!-- start -->
 
     <div class="row" style="margin-left: 50px; margin-right: 50px; margin-top: 50px">
-        <div class="col-xs-12">
-            <div class="row">
-                <div style="margin-right: 24px">
-                    <img alt src="{{ img_src }}" width="140" height="140">
-                </div>
-                <div class="col-xs-9">
-                    <h3>{{ user_name }}</h3>
-                    <a class="btn btn-block btn-social btn-github" href="{{ user_site }}" target="_blank">
-                        <span class="fa fa-github">
-                        </span>GitHub로 가기
-                    </a>
-                    <a class="btn btn-block btn-secondary" href="#" style="" onclick="prof_refresh();">
-                        갱신 하기
-                    </a>
-                </div>
 
-            </div>
-
-
-        </div>
     </div>
 
     <div class="row" style="margin-left: 50px; margin-right: 50px; margin-top: 50px">
@@ -157,12 +138,10 @@
 <!-- -->
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> <!-- 변경 필요 [https://cdn.jsdelivr.net/npm/vue] -->
 <script type="text/javascript" src="{{ url_for("static", filename="js/login.js") }}"></script>
-<script type="text/javascript" src="{{ url_for("static", filename="js/page/profile.js") }}"></script>
+<script type="text/javascript" src="{{ url_for("static", filename="js/page/gall_list.js") }}"></script>
 <script>
     checkLogin();
-    window.onload = function () {
-        init();
-    };
+
 
 
 </script>

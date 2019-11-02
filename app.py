@@ -1,7 +1,8 @@
 from flask import Flask, redirect, request, session, render_template, url_for, abort
-from src import GitHubLogin, GithubUser, caching
+from src import GitHubLogin, GithubUser, caching, gh_db
 import randstr
 from src import gh_init
+
 app = Flask(__name__)
 app.secret_key = 'dsadadsadasdadadsa'  # randstr.randstr(40)
 
@@ -27,6 +28,21 @@ def profile():
                            img_src=api.prof_img(),
                            user_name=api.user_name(),
                            user_site=api.user_site())
+
+
+@app.route('/study')
+def study():
+    return render_template('page/gall_list.html')
+
+
+@app.route('/study/<gid>')
+def study_page(gid: int):
+    return render_template('page/study.html', gid=gid)
+
+
+@app.route('/page/<gid>/<pid>')
+def study_main(gid: int, pid: int):
+    return render_template('page/study.html', gid=gid, pid=pid)
 
 
 #### error page ####
@@ -76,9 +92,6 @@ def err_404(error):
     return render_template('page/error/5XX/504.html')
 
 
-
-
-
 #### login ####
 ## 로그인 담담
 ## 로그인시 세션과 콜백시 세션이 다르면 에러
@@ -120,24 +133,20 @@ def callback():
 def login_success():
     if 'gh_token' not in session:
         abort(403)
-    if 'user_manager' not in session:
+    if 'user_manager' in session:
         caching.Caching.rm(session['user_manager'])
-    if 'repo_manager' not in session:
+    if 'repo_manager' in session:
         caching.Caching.rm(session['repo_manager'])
 
-    try:
-        chk = session['login_key'] + 'user'
-        caching.Caching.save(chk, GithubUser.GitHubUser(session['gh_token']))
-        session['user_manager'] = chk
-        chk = session['login_key'] + 'repo'
-        caching.Caching.save(chk, GithubUser.GitHubRepo(session['gh_token'], session['uid']))
-        session['repo_manager'] = chk
-
-        caching.Caching.get(session['user_manager']).user_login()
-        session['uid'] = caching.Caching.get(session['user_manager']).refresh_user_data()
-        session['uid'] = caching.Caching.get(session['user_manager']).get_uid()
-    except:
-        abort(503)
+    chk = session['login_key'] + 'user'
+    caching.Caching.save(chk, GithubUser.GitHubUser(session['gh_token']))
+    session['user_manager'] = chk
+    caching.Caching.get(session['user_manager']).user_login()
+    caching.Caching.get(session['user_manager']).refresh_user_data()
+    session['uid'] = caching.Caching.get(session['user_manager']).get_uid()
+    chk = session['login_key'] + 'repo'
+    caching.Caching.save(chk, GithubUser.GitHubRepo(session['gh_token'], session['uid']))
+    session['repo_manager'] = chk
     return '<html?<head></head><body><script>opener.location.reload();close();</script></body></html>'
 
 
@@ -189,6 +198,69 @@ def repos():
 def repo_refresh():
     caching.Caching.get(session['repo_manager']).refresh_repos()
     return 'OK'
+
+
+@app.route('/api/gallery')
+@app.route('/api/gallery/list')
+def gall_list():
+    gall = GithubUser.Gallery()
+    return gall.get_list()
+
+
+@app.route('/api/gallery/<gid>')
+def gall_post_list(gid: int):
+    gall = GithubUser.Gallery()
+    gall.set(gid)
+    return gall.post_list()
+
+
+@app.route('/api/post/<pid>')
+def get_post(pid: int):
+    try:
+        post = GithubUser.Post()
+        post.set(pid)
+        return post.get_post()
+    except:
+        return '', 404
+
+
+# ? title, content
+#   create post in gallery<gid>
+@app.route('/api/post/add/<gid>', methods=['GET', 'POST'])
+def add_post(gid: int):
+    if request.method == 'POST':
+        writer = gh_db.post()
+        writer.new(gid, request.args['title'], request.args['content'], 'html', session['uid'])
+        return 'OK'
+    if request.method == 'GET':
+        writer = gh_db.post()
+        writer.new(gid, request.args['title'], request.args['content'], 'html', session['uid'])
+        return 'OK'
+
+
+# ? title, info
+#   create gallery
+@app.route('/api/gallery/add', methods=['GET', 'POST'])
+def add_gall():
+    try:
+        gall = GithubUser.Gallery()
+        gall.create(request.args['title'], request.args['info'])
+        return 'OK'
+    except:
+        return 'error', 403
+
+
+# ? id=int
+#   delete gallery with id param-id
+@app.route('/api/gallery/rm', methods=['GET', 'POST'])
+def del_gall():
+    try:
+        gall = GithubUser.Gallery()
+        gall.search_id(int(request.args['id']))
+        gall.rm()
+        return 'OK'
+    except:
+        return 'error', 403
 
 
 if __name__ == '__main__':

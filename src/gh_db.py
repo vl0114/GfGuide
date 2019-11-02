@@ -3,62 +3,131 @@
 # sql injection 구문이 없음을 전제로 사용 해야함
 
 from . import db, GitHubAPI
-
+import datetime
 
 class gallery:  # 겔러리
     def __init__(self):
-        self.psql = db.psql()
-        self.gid = -1  # gallery id
-        self.title = ''  # 제목
-        self.ginfo = ''  # 겔러리 정보
-        # created
-        self.r_op = 0  # 읽기권한
-        self.w_op = 0  # 쓰기권한
-        self.code = 0  # 기타 코드
+        self.psql = db.psql2()
+        self.pq = db.Query()
 
-    def registe_gallery(self, title: str, info: str = ''):
-        self.psql.send("insert into gallery(title, ginfo) VALUES ('{}', '{}')"
-                       .format(title, info))
-        r = self.psql.get("select gid from gallery where title = '{}'".format(title))
-        self.gid = (r[0][0])
-        return self.gid
+    def new(self, title: str, ginfo: str):
+        gallery_data = dict()
+        gallery_data['title'] = title
+        gallery_data['ginfo'] = ginfo
+        self.psql.send(self.pq.dict_to_insert(gallery_data, 'gallery'))
 
-    def get_gid(self, title: str):
-        r = self.psql.get("select gid from gallery where title = '{}'".format(title))
-        self.gid = (r[0][0])
-        return self.gid
+    def search(self, gid: int):
+        ret = self.psql.get(
+            self.pq.dict_to_select(None, 'gallery', ['gid', 'title', 'ginfo', 'created', 'r_op', 'w_op'],
+                                   where=f"gid = '{gid}'"))
+        r = dict(ret[0])
+        c = r.copy()
+        for i in r.keys():
+            if isinstance(r[i], datetime.datetime):
+                c[i] = str(r[i])
+        return c
 
-    def add_post(self, title: str, contents: str, writer: int):
-        self.psql.send("insert into post(gid, contents, title, writer) values ({}, '{}', '{}', {})"
-                       .format(self.gid, contents, title, writer))
+    def search_title(self, title: str):
+        ret = self.psql.get(
+            self.pq.dict_to_select(None, 'gallery', ['gid', 'title', 'ginfo', 'created', 'r_op', 'w_op'],
+                                   where=f"title like '%{title}%'"))
+        glist = list()
+        for i in ret:
+            glist.append(dict(i))
+
+        return glist
+
+    def search_title_(self, title: str):
+        ret = self.psql.get(
+            self.pq.dict_to_select(None, 'gallery', ['gid', 'title', 'ginfo', 'created', 'r_op', 'w_op'],
+                                   where=f"title = '{title}'"))
+
+        return dict(ret[0])
+
+    def rm(self, gid):
+        self.psql.send(f'delete from gallery where gid = {gid}')
+
+    def modify(self, gid: int, title: str = None, ginfo: str = None):
+        if title is None and ginfo is None:
+            return
+        q = "update gallery set "
+        if title is not None:
+            q = q + f"title = '{title}' "
+        if ginfo is not None:
+            q = q + f", ginfo = '{ginfo}'"
+        q = q + f' where gid = {gid}'
+        self.psql.send(q)
         self.psql.commit()
 
-    def modify_post(self, pid: int, title: str, contents: str):
-        self.psql.send("update post set contents = '{}', title = '{}' where pid = {}"
-                       .format(contents, title, pid))
+    def get_list(self):
+        l = self.psql.get(self.pq.dict_to_select(None, 'gallery', ['gid', 'title']))
+        r = list()
+        for i in l:
+            r.append({'gid': i[0], 'title': i[1]})
+        return r
 
-    def get_post(self, pid: int):
-        return self.psql.get("select title, contents, upload_date, recent_date from post where pid = {}".format(pid))
-
-    def get_all_post_from_gallery(self):
-        return self.psql.get(
-            "select title, contents, upload_date, recent_date from post where gid = {}".format(self.gid))
+    def post_list(self, gid: int):
+        ll = self.psql.get(self.pq.dict_to_select(None, 'post', ['pid', 'title'], f'gid = {gid}'))
+        x = list()
+        for i in ll:
+            x.append({'pid': i[0], 'title': i[1]})
+        return x
 
 
 class post:  # 포스트
     def __init__(self):
-        self.psql = db.psql()
-        self.pid = -1  # post id
-        self.gid = -1
-        self.contents = ''  # 본문
-        self.title = ''  # 제목
-        # upload_date
-        # recent_date
-        self.code = 0  # 기타 코드
-        self.r_op = 0  # 읽기 권한 레벨
-        self.views = 0
-        self.w_op = 0  # 쓰기(편집) 권한 레벨
-        self.writer = 0  # 작성자 uid
+        self.psql = db.psql2()
+        self.pq = db.Query()
+
+    def new(self, gid: int, title: str, main_text: str, render_type: str, writer: int):
+        post_content = dict()
+        post_content['title'] = title
+        post_content['contents'] = main_text
+        post_content['writer'] = writer
+        if render_type == 'md':
+            post_content['render_type'] = 1
+        elif render_type == 'html':
+            post_content['render_type'] = 2
+        else:
+            post_content['render_type'] = 0
+
+        self.psql.send(self.pq.dict_to_insert(post_content, 'post'))
+
+    def search(self, title: str):
+        ret = self.psql.get(self.pq.dict_to_select(None, 'post', ['pid', 'title'],
+                                                   where=f"title like '%{title}%'"))
+        pid_list = list()
+        for i in ret:
+            pid_list.append({'pid': i[0], 'title': i[1]})
+        return pid_list
+
+    def rm(self, pid: int):
+        self.psql.send(f'delete from post where pid = {pid}')
+
+    def modify(self, title: str, main_text: str, render_type: str, writer: int):
+        self.post_content['title'] = title
+        self.post_content['contents'] = main_text
+        self.post_content['writer'] = writer
+        if render_type == 'md':
+            self.post_content['render_type'] = 1
+        elif render_type == 'html':
+            self.post_content['render_type'] = 2
+        else:
+            self.post_content['render_type'] = 0
+        q = self.pq.dict_to_update(self.post_content, 'post', f'pid = {self.post_content["pid"]}')
+        self.psql.send(q)
+        self.psql.commit()
+
+    def get(self, pid):
+        return self.psql.get(self.pq.dict_to_select(None, 'post', ['pid', 'gid', 'title', 'contents',
+                                                                   'upload_date',
+                                                                   'recent_date', 'r_op', 'w_op',
+                                                                   'writer, render_type', 'views'],
+                                                    f'pid = {pid}'
+                                                    ))[0]
+
+    def get_title(self, pid):
+        return self.psql.get(f"select title from post where pid = {pid}")
 
 
 '''
@@ -95,6 +164,7 @@ class grepo:  # 리포지토리
         self.gh_id = (self.psql.get('select ghid from guser where  uid = {}'.format(uid)))[0]['ghid']
         self.pq = db.Query()
 
+    # API -> 메모리
     def request_repo(self):
         req = GitHubAPI.GitHubAPI(self.token)
         req.requestRepo()
@@ -106,13 +176,15 @@ class grepo:  # 리포지토리
             copy_repo['repo_id'] = repo['id']
             copy_repo['full_name'] = repo['full_name']
             copy_repo['is_private'] = repo['private']
-            copy_repo['full_name'] = repo['full_name']
+            copy_repo['repo_name'] = repo['name']
+            copy_repo['description'] = repo['description']
+            copy_repo['html_url'] = 'https://github.com/' + repo['full_name']
             copy_repo['is_fork'] = repo['fork']
             copy_repo['git_url'] = repo['git_url']
             copy_repo['ssh_url'] = repo['ssh_url']
             copy_repo['clone_url'] = repo['clone_url']
             copy_repo['mirror_url'] = repo['mirror_url']
-            copy_repo['lang'] = repo['language']
+            copy_repo['lang'] = repo['language'] if repo["language"] is not None else 'Unknown'
             copy_repo['fork_count'] = repo['forks_count']
             copy_repo['star_count'] = repo['stargazers_count']
             copy_repo['watcher_count'] = repo['watchers_count']
@@ -135,11 +207,12 @@ class grepo:  # 리포지토리
             copy_repo['per_push'] = repo['permissions']['push']
             copy_repo['per_pull'] = repo['permissions']['pull']
 
-            copy_repo['license'] = repo["license"]['key']
+            copy_repo['license'] = repo["license"]["key"] if repo["license"] is not None else 'None'
             copy_repo['uid'] = self.uid
 
             self.repo_list.append(copy_repo)
 
+    # db -> 메모리
     def get_from_db(self):
         if self.psql.get(f"select count(*) from gh_repo_caching where uid = {self.uid}")[0][0] == 0:
             self.request_repo()
@@ -152,8 +225,11 @@ class grepo:  # 리포지토리
             av.pop('pushed_at')
             av.pop('created_at')
             av.pop('updated_at')
+            # av['license'] = av["license"]["key"] if av["license"] is not None else 'None'
+
             self.repo_list.append(av)
 
+    # 메모리 -> db if 메모리 is None API -> 메모리 -> db
     def put_db(self):
         for i in self.repo_list:
             if self.psql.get(f"select count(*) from gh_repo_caching where repo_id = {i['repo_id']}")[0][0] == 0:
@@ -162,6 +238,17 @@ class grepo:  # 리포지토리
             else:
                 self.psql.send(self.pq.dict_to_update(i, 'gh_repo_caching', f'repo_id = {i["repo_id"]}'))
                 self.psql.commit()
+
+        repoc = self.psql.get(f"select repo_id from gh_repo_caching where uid = {self.uid}")
+        for i in repoc:
+
+            is_contain = False
+            for j in self.repo_list:
+                if i[0] == j['repo_id']:
+                    is_contain = True
+
+            if not is_contain:
+                self.psql.send(f"delete from gh_repo_caching where repo_id = {i[0]}")
 
 
 class guser:  # 유저
@@ -194,11 +281,13 @@ class guser:  # 유저
 
         self.psql = db.psql()
 
+    # 새로운 유저 등록 메모리 -> db
     def registe_user_data(self):
         if (self.psql.get(f"select count(*) from guser where ghid = {self.gh_id}"))[0][0] == 0:
             self.psql.send(f"insert into guser (ghid) values ({self.gh_id})")
             self.psql.commit()
 
+    # tuple -> dict
     def set_user_data(self, res: tuple):  # uid, registe_date, code, opl, ghid, status
         self.user_data['uid'] = res[0]
         self.user_data['registe'] = res[1]
@@ -207,27 +296,32 @@ class guser:  # 유저
         self.user_data['gh_id'] = res[4]
         self.user_data['status'] = res[5]
 
+    # db -> 메모리
     def get_user_by_gh_id(self):
         x = self.psql.get(f"select uid, registe_date, code, opl, ghid, status from guser "
                           f"where ghid = {self.gh_id}")
         res = x[0]
         self.set_user_data(res)
 
+    # user status value set -1
     def draw_user(self):
         self.psql.send(f"update guser set status = -1 where uid = {self.user_data['uid']}")
         self.psql.commit()
         self.user_data['status'] = -1
 
+    # user status value set -2
     def rest_user(self):
         self.psql.send(f"update guser set status = -2 where uid = {self.user_data['uid']}")
         self.psql.commit()
         self.user_data['status'] = -2
 
+    # user opl value set 30
     def promote_admin(self):
         self.psql.send(f"update guser set opl = 30 where uid = {self.user_data['uid']}")
         self.psql.commit()
         self.user_data['opl'] = 30
 
+    # user opl value set 0
     def demote_general(self):
         self.psql.send(f"update guser set opl = 0 where uid = {self.user_data['uid']}")
         self.psql.commit()
@@ -250,6 +344,7 @@ class guser:  # 유저
         self.user_cache['followers'] = res[10]
         self.user_cache['following'] = res[11]
 
+    # API -> memory
     def request_user_cache(self):
         res = self.psql.get(f"select ghid, gh_login, html_url, user_name, company, blog, loc, email, public_repos,"
                             f" public_gists, followers, followings from gh_user_caching "
@@ -257,6 +352,7 @@ class guser:  # 유저
         res1 = res[0]
         self.set_user_cache(res1)
 
+    # memory -> DB
     def update_user_cache(self, user_dict: dict):
         self.user_cache = user_dict
         if self.psql.get(f"select count(*) from gh_user_caching where ghid = {self.user_cache['id']}")[0][0] == 0:

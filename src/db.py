@@ -9,6 +9,7 @@ conn.autocommit = True
 cur = conn.cursor()
 cur_dict = conn.cursor(cursor_factory=pg2e.DictCursor)
 
+
 class psql:
     def __init__(self):
         self.conn = conn
@@ -23,6 +24,7 @@ class psql:
 
     def commit(self):  # 커밋
         self.conn.commit()
+
 
 class psql2:
     def __init__(self):
@@ -39,15 +41,21 @@ class psql2:
     def commit(self):  # 커밋
         self.conn.commit()
 
+
 class Query:
-    def dict_to_select(self, data: dict, db_from: str, keys: list = None):
+    def dict_to_select(self, data: dict, db_from: str, keys: list = None, where=None):
         if keys is None:
             key = data.keys()
         else:
             key = keys
         _key = ','.join(key)
 
-        return 'select {} from {}'.format(_key, db_from)
+        w = 'select {} from {}'.format(_key, db_from)
+
+        if where is not None:
+            w = w + f' where {where}'
+
+        return w
 
     def dict_to_insert(self, data: dict, db_into: str):
         _r = str()

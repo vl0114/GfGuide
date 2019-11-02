@@ -3,7 +3,7 @@
 
 
 from . import GitHubAPI, gh_db
-import json, re
+import json, re, datetime
 from . import utils
 
 '''
@@ -78,3 +78,63 @@ class GitHubRepo:
     def get_repos_json(self):
         return json.dumps(self.repo_db.repo_list)
 
+
+class Post:
+    def __init__(self):
+        self.pid = -1
+        self.post_db = gh_db.post()
+
+    def set(self, pid):
+        self.pid = pid
+
+    def create(self):
+        #self.post_db.new
+        pass
+
+    def search(self, title: str):
+        return json.dumps(self.post_db.search(title))
+
+    def rm(self):
+        self.post_db.rm(self.pid)
+
+    def get_post(self):
+        r = self.post_db.get(self.pid)
+        c = r.copy()
+        for i in r.keys():
+            if isinstance(r[i], datetime.datetime):
+                c[i] = str(r[i])
+        return json.dumps(c)
+
+
+class Gallery:
+    def __init__(self):
+        self.gid = -1
+        self.gall_db = gh_db.gallery()
+
+    def create(self, title: str, g_info: str, r_op: int = 0, w_op: int = 0):
+        self.gall_db.new(title, g_info)
+        r = self.gall_db.search_title_(title)
+        self.gid = r['gid']
+
+    def set(self, gid: int):
+        self.gid = gid
+
+    def search(self, title: str):
+        r = self.gall_db.search_title(title)
+        return json.dumps(r)
+
+    def search_id(self, id: int):
+        r = self.gall_db.search(id)
+        return json.dumps(r)
+
+    def rm(self):
+        self.gall_db.rm(self.gid)
+
+    def get_list(self):
+        return json.dumps(self.gall_db.get_list())
+
+    def post_list(self):
+        r = self.gall_db.post_list(self.gid)
+        l = self.gall_db.search(self.gid)
+        l['posts'] = r
+        return json.dumps(l)

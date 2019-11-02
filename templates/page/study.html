@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Profile</title>
+    <title>Study</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap/css/bootstrap.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap-social/bootstrap-social.css') }}">
@@ -11,7 +11,6 @@
 
 </head>
 <body> <!-- 변경 필요 [색상] -->
-
 <div class="wrapp container-fluid">
 
     <div class="row header-wrapper p-0"> <!-- 변경 필요 [색상] -->
@@ -64,83 +63,43 @@
     </div>
     <!-- start -->
 
-    <div class="row" style="margin-left: 50px; margin-right: 50px; margin-top: 50px">
-        <div class="col-xs-12">
-            <div class="row">
-                <div style="margin-right: 24px">
-                    <img alt src="{{ img_src }}" width="140" height="140">
-                </div>
-                <div class="col-xs-9">
-                    <h3>{{ user_name }}</h3>
-                    <a class="btn btn-block btn-social btn-github" href="{{ user_site }}" target="_blank">
-                        <span class="fa fa-github">
-                        </span>GitHub로 가기
-                    </a>
-                    <a class="btn btn-block btn-secondary" href="#" style="" onclick="prof_refresh();">
-                        갱신 하기
-                    </a>
-                </div>
+	<div class="row" style="margin-top: 15px">
 
-            </div>
+        <div class="col-md-3 col-lg-2"> <!-- sidebar -->
+            <div class="sidebar" style="overflow-y: auto;">
+                <div class="panel panel-default">
 
+                    <div class="list-group list-group-toc" id = 'postlist'>
+                        <a class="list-group-item" onclick="history.back();"><span>
+                            <strong>
+                                돌아가기
+                            </strong>
+                        </span></a>
+                        <a class="list-group-item" v-for="p in PostList" v-on:click="change_post(p.pid)">[[ p.title ]]</a> <!-- 변경 필요 [Vue.js 연동] -->
 
-        </div>
-    </div>
-
-    <div class="row" style="margin-left: 50px; margin-right: 50px; margin-top: 50px">
-        <div class="tabbable w-100" id="tabs-382924">
-            <ul class="nav nav-tabs">
-                <li>
-                    <div style="height: 3px; width: 10px"></div>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="#tab_user_info" data-toggle="tab">리포지토리</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#tab_gh_event" data-toggle="tab">이벤트</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#tab_achievements" data-toggle="tab">도전과제</a>
-                </li>
-            </ul>
-
-            <div class="tab-content">
-                <div class="tab-pane active" id="tab_user_info">
-                    <!-- 로그인한 유저의 정보 -->
-
-                    <div class="row repo-cards w-100 m-0" id="rc" style="display: none;">
-                        <div class="repo-card col-sm-12 col-md-6 m-0" v-for="val in repos">
-                            <h4><a v-bind:href="[[ val.html_url ]]" target="_blank" style="color: black">[[ val.full_name ]]</a></h4>
-                            <h6>스타: [[ val.star_count ]]</h6>
-                            <h6>포크: [[ val.fork_count ]]</h6>
-                            <h6>라이선스: [[ val.license ]]</h6>
-                            <h6>언어: [[ val.lang ]]</h6>
-                        </div>
 
                     </div>
+                </div>
+            </div>
+        </div> <!-- sidebar end -->
 
+        <div class="col-md-9 col-lg-10"> <!-- contents -->
+            <div class="contents-wrapper">
+                <div class="text-left" id = "content-post">
+
+                    <h2 style="text-align: left;">[[ title ]]</h2>
+                    <p class="m-0">[[ time ]]</p>
+                    <span v-html="Contents"></span>
                 </div>
 
-            <div class="tab-pane" id="tab_gh_event">
-                <!-- GitHub 이벤트 로그 -->
-                <p>
-                    GitHub Event
-                </p>
             </div>
-            <div class="tab-pane" id="tab_achievements">
-                <!-- 도전과제 -->
-                <p>
-                    도전과제
-                </p>
-            </div>
-            </div>
-        </div>
-    </div>
+        </div> <!-- contents end -->
 
 
-    <!-- end -->
-    <!-- footer banner -->
-    <div class="row">
+
+
+	</div>
+	<div class="row">
         <div class="col-12 w-100 m-0 bottom-wrapper"> <!-- 변경 필요 [색상, 배너 패딩] -->
             <p class="text-muted text-center" style="margin-top: 10px; margin-bottom: 10px">
                 <a href="/license" style="color: black">© GhGuide 2019 based on GitHub</a></p>
@@ -157,15 +116,14 @@
 <!-- -->
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> <!-- 변경 필요 [https://cdn.jsdelivr.net/npm/vue] -->
 <script type="text/javascript" src="{{ url_for("static", filename="js/login.js") }}"></script>
-<script type="text/javascript" src="{{ url_for("static", filename="js/page/profile.js") }}"></script>
+<script type="text/javascript" src="{{ url_for("static", filename="js/page/study.js") }}"></script>
 <script>
-    checkLogin();
-    window.onload = function () {
-        init();
-    };
-
-
+let gid = {{ gid }};
+checkLogin();
+posts(gid);
 </script>
+
+
 
 <style>
     .wrapp {
@@ -177,15 +135,6 @@
         position: fixed;
         bottom: 0;
         background: #a0a0a0;
-    }
-
-    .repo-card {
-        background-color: #f0f0f0;
-        border: 0 solid #a0a0a0;
-        border-bottom-width: 2px;
-        border-right-width: 2px;
-
-
     }
 </style>
 
