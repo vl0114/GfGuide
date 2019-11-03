@@ -57,7 +57,7 @@ def study_page(g: str):
         return render_template('page/study.html', gid=gdb.search_dict(g)['gid'])
 
 
-@app.route('bbooiiww/doggos')
+@app.route('/bbooiiww/doggos')
 def egg():
     return """
     <iframe width="1252" height="704"
@@ -68,7 +68,7 @@ def egg():
     """
 
 
-@app.route('bbooiiww/weeeeed')
+@app.route('/bbooiiww/weeeeed')
 def my_mental_state():
     return """
     <iframe width="1004" height="753"
