@@ -2,7 +2,7 @@
 <html lang="ko" xmlns:v-bind="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Profile</title>
+    <title>Editor</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap/css/bootstrap.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap-social/bootstrap-social.css') }}">
@@ -63,80 +63,46 @@
         </div>
     </div>
     <!-- start -->
+    <span id="render">
+        <span v-html="msg">
 
-    <div class="row" style="margin-left: 50px; margin-right: 50px; margin-top: 50px">
-        <div class="col-xs-12">
-            <div class="row">
-                <div style="margin-right: 24px">
-                    <img alt src="{{ img_src }}" width="140" height="140">
-                </div>
-                <div class="col-xs-9">
-                    <h3>{{ user_name }}</h3>
-                    <a class="btn btn-block btn-social btn-github" href="{{ user_site }}" target="_blank">
-                        <span class="fa fa-github">
-                        </span>GitHub로 가기
-                    </a>
-                    <a class="btn btn-block btn-secondary" href="#" style="" onclick="prof_refresh();">
-                        갱신 하기
-                    </a>
-                </div>
+        </span>
 
-            </div>
-
-
+    <div class="row editor w-100">
+        <div class="col-xs-12 w-100">
+            <form>
+                <label style="display: flex; vertical-align: middle">
+                    <div style="margin-left: 10px; margin-right: 10px; margin-top: 5px;">target gid:</div>
+                    <input type="text" id="gid-box">
+                    <div style="margin-left: 10px; margin-right: 5px; margin-top: 5px;">title:</div>
+                    <input type="text" id="title-box">
+                    <button type="button" class="btn btn-github" style="margin-left: 10px; margin-right: 5px"
+                            onclick="sendPost()">포스트</button>
+                    <div style="margin-left: 10px; margin-right: 5px; margin-top: 5px;">에디터 보이기:</div>
+                    <input id="chkbox" type="checkbox" checked style="margin-top: 8px" onclick="chk()">
+                </label>
+            </form>
+        </div>
+        <div id="e1" class="col-xs-6 w-50" style="height: 400px;">
+            <form class="h-100 w-100 x">
+                <label class="m-0 x" style="height: 100%; width: 100%;">
+                    <textarea id="code-text" v-model="msg" class="x" style="overflow-y:scroll"
+                              onkeydown="
+                                if (event.keyCode === 9) {
+                                var v = this.value, s = this.selectionStart, e = this.selectionEnd;
+                                this.value = v.substring(0, s) + '\t' + v.substring(e);
+                                this.selectionStart = this.selectionEnd = s + 1;
+                                return false;
+                                }
+"></textarea>
+                </label>
+            </form>
+        </div>
+        <div id="e2" class="col-xs-6 w-50" style="height: 400px;">
+            <pre style="margin-left: 10px"><code>[[msg]]</code></pre>
         </div>
     </div>
-
-    <div class="row" style="margin-left: 50px; margin-right: 50px; margin-top: 50px">
-        <div class="tabbable w-100" id="tabs-382924">
-            <ul class="nav nav-tabs">
-                <li>
-                    <div style="height: 3px; width: 10px"></div>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="#tab_user_info" data-toggle="tab">리포지토리</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#tab_gh_event" data-toggle="tab">이벤트</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#tab_achievements" data-toggle="tab">도전과제</a>
-                </li>
-            </ul>
-
-            <div class="tab-content">
-                <div class="tab-pane active" id="tab_user_info">
-                    <!-- 로그인한 유저의 정보 -->
-
-                    <div class="row repo-cards w-100 m-0" id="rc" style="display: none;">
-                        <div class="repo-card col-sm-12 col-md-6 m-0" v-for="val in repos">
-                            <h4><a v-bind:href="[[ val.html_url ]]" target="_blank" style="color: black">[[ val.full_name ]]</a></h4>
-                            <h6>스타: [[ val.star_count ]]</h6>
-                            <h6>포크: [[ val.fork_count ]]</h6>
-                            <h6>라이선스: [[ val.license ]]</h6>
-                            <h6>언어: [[ val.lang ]]</h6>
-                        </div>
-
-                    </div>
-
-                </div>
-
-            <div class="tab-pane" id="tab_gh_event">
-                <!-- GitHub 이벤트 로그 -->
-                <p>
-                    GitHub Event
-                </p>
-            </div>
-            <div class="tab-pane" id="tab_achievements">
-                <!-- 도전과제 -->
-                <p>
-                    도전과제
-                </p>
-            </div>
-            </div>
-        </div>
-    </div>
-
+</span>
 
     <!-- end -->
     <!-- footer banner -->
@@ -157,17 +123,52 @@
 <!-- -->
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> <!-- 변경 필요 [https://cdn.jsdelivr.net/npm/vue] -->
 <script type="text/javascript" src="{{ url_for("static", filename="js/login.js") }}"></script>
-<script type="text/javascript" src="{{ url_for("static", filename="js/page/profile.js") }}"></script>
 <script>
-    checkLogin();
-    window.onload = function () {
-        init();
-    };
+    function sendPost() {   // gid-box title-box code-text
+        let gid = document.getElementById('gid-box').value;
+        let title = document.getElementById('title-box').value;
+        let code = document.getElementById('code-text').value;
+        let req = new XMLHttpRequest();
+        let params = 'title='.concat(title, '&content=', code);
+        req.open('POST', '/api/post/add/'.concat(gid));
+        req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        req.onreadystatechange = function()
+        {
+            alert(req.responseText);
+        };
+        req.send(params);
+    }
 
+    function chk() {
+        if (document.getElementById("chkbox").checked) {
+            document.getElementById("e1").style.display = "block";
+            document.getElementById("e2").style.display = "block";
+        } else {
+            document.getElementById("e1").style.display = "none";
+            document.getElementById("e2").style.display = "none";
+        }
+    }
+
+    checkLogin();
+    let render = new Vue(
+        {
+            el: "#render",
+            data:
+                {
+                    msg: ""
+                },
+            delimiters: ['[[', ']]']
+        });
 
 </script>
-
 <style>
+    .x {
+
+        width: 100%;
+        height: 100%;
+        padding: 0;
+    }
+
     .wrapp {
         width: 100%;
         background: #fff;
@@ -179,13 +180,9 @@
         background: #a0a0a0;
     }
 
-    .repo-card {
-        background-color: #f0f0f0;
-        border: 0 solid #a0a0a0;
-        border-bottom-width: 2px;
-        border-right-width: 2px;
-
-
+    .editor {
+        position: fixed;
+        bottom: 44px;
     }
 </style>
 

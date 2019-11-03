@@ -60,10 +60,10 @@ class gallery:  # 겔러리
         self.psql.commit()
 
     def get_list(self):
-        l = self.psql.get(self.pq.dict_to_select(None, 'gallery', ['gid', 'title']))
+        l = self.psql.get(self.pq.dict_to_select(None, 'gallery', ['gid', 'title', 'ginfo', 'img']))
         r = list()
         for i in l:
-            r.append({'gid': i[0], 'title': i[1]})
+            r.append({'gid': i[0], 'title': i[1], 'info': i[2], 'img': i[3]})
         return r
 
     def post_list(self, gid: int):
@@ -81,6 +81,7 @@ class post:  # 포스트
 
     def new(self, gid: int, title: str, main_text: str, render_type: str, writer: int):
         post_content = dict()
+        post_content['gid'] = gid
         post_content['title'] = title
         post_content['contents'] = main_text
         post_content['writer'] = writer
@@ -90,8 +91,8 @@ class post:  # 포스트
             post_content['render_type'] = 2
         else:
             post_content['render_type'] = 0
-
         self.psql.send(self.pq.dict_to_insert(post_content, 'post'))
+        self.psql.commit()
 
     def search(self, title: str):
         ret = self.psql.get(self.pq.dict_to_select(None, 'post', ['pid', 'title'],
@@ -160,7 +161,6 @@ class grepo:  # 리포지토리
         self.token = token
         self.repo_list = list()
         self.psql = db.psql2()
-        print('>>>>>>>', uid)
         self.gh_id = (self.psql.get('select ghid from guser where  uid = {}'.format(uid)))[0]['ghid']
         self.pq = db.Query()
 

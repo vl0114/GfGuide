@@ -49,8 +49,11 @@ function posts(id) {
             p_list[i]['title'] = data['posts'][i]['title'];
             p_list[i]['pid'] = data['posts'][i]['pid'];
         }
+        p_list.sort(function (a, b) {
+            return a.pid - b.pid;
+        });
         postListRender.PostList = p_list;
-        change(data['posts'][0]['pid'])
+        change(p_list[0]['pid'])
     };
     requester2.send()
 }

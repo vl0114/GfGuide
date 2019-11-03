@@ -1,7 +1,7 @@
 from flask import Flask, redirect, request, session, render_template, url_for, abort
 from src import GitHubLogin, GithubUser, caching, gh_db
 import randstr
-from src import gh_init
+from src import gh_init, Setting
 
 app = Flask(__name__)
 app.secret_key = 'dsadadsadasdadadsa'  # randstr.randstr(40)
@@ -30,19 +30,51 @@ def profile():
                            user_site=api.user_site())
 
 
+@app.route('/license')
+def redirect_license():
+    return redirect('https://github.com/vl0114/GhGuide')
+
+
 @app.route('/study')
 def study():
+    if 'login_key' not in session or session['login_key'] is None:
+        abort(403)  # redirect error page
     return render_template('page/gall_list.html')
 
 
-@app.route('/study/<gid>')
-def study_page(gid: int):
-    return render_template('page/study.html', gid=gid)
+@app.route('/study/<g>')
+def study_page(g: str):
+    if 'login_key' not in session or session['login_key'] is None:
+        abort(403)  # redirect error page
+    gdb = GithubUser.Gallery()
+    if g.isdecimal():
+        if not gdb.is_in(int(g)):
+            abort(404)
+        return render_template('page/study.html', gid=int(g))
+    else:
+        if not gdb.is_in(g):
+            abort(404)
+        return render_template('page/study.html', gid=gdb.search_dict(g)['gid'])
 
 
-@app.route('/page/<gid>/<pid>')
-def study_main(gid: int, pid: int):
-    return render_template('page/study.html', gid=gid, pid=pid)
+@app.route('/doggos')
+def egg():
+    return """
+    <iframe width="1252" height="704"
+     src="https://www.youtube.com/embed/5rJih7rWXMA"
+     frameborder="0" allow="accelerometer;
+     autoplay; encrypted-media; gyroscope; picture-in-picture"
+     allowfullscreen></iframe>
+    """
+
+
+@app.route('/editor')
+def editor_page():
+    if 'login_key' not in session or session['login_key'] is None:
+        abort(403)  # redirect error page
+    if session['uid'] not in Setting.Admin.admin_uid:
+        abort(403)
+    return render_template('page/editor.html')
 
 
 #### error page ####
@@ -53,42 +85,37 @@ def err_404(error):
 
 
 @app.errorhandler(403)
-def err_404(error):
+def err_403(error):
     return render_template('page/error/4XX/403.html')
 
 
 @app.errorhandler(408)
-def err_404(error):
+def err_408(error):
     return render_template('page/error/4XX/408.html')
 
 
 @app.errorhandler(400)
-def err_404(error):
+def err_400(error):
     return render_template('page/error/4XX/400.html')
 
 
-@app.errorhandler(404)
-def err_404(error):
-    return render_template('page/error/4XX/404.html')
-
-
 @app.errorhandler(500)
-def err_404(error):
+def err_500(error):
     return render_template('page/error/5XX/500.html')
 
 
 @app.errorhandler(502)
-def err_404(error):
+def err_502(error):
     return render_template('page/error/5XX/502.html')
 
 
 @app.errorhandler(503)
-def err_404(error):
+def err_503(error):
     return render_template('page/error/5XX/503.html')
 
 
 @app.errorhandler(504)
-def err_404(error):
+def err_504(error):
     return render_template('page/error/5XX/504.html')
 
 
@@ -230,12 +257,13 @@ def get_post(pid: int):
 def add_post(gid: int):
     if request.method == 'POST':
         writer = gh_db.post()
-        writer.new(gid, request.args['title'], request.args['content'], 'html', session['uid'])
+        writer.new(gid, request.form['title'], request.form['content'], 'html', session['uid'])
         return 'OK'
     if request.method == 'GET':
         writer = gh_db.post()
         writer.new(gid, request.args['title'], request.args['content'], 'html', session['uid'])
         return 'OK'
+    return 'NO', 503
 
 
 # ? title, info
@@ -265,4 +293,4 @@ def del_gall():
 
 if __name__ == '__main__':
     gh_init.gh_init()
-    app.run()
+    app.run(host='0.0.0.0', port=80)

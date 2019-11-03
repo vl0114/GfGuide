@@ -25,6 +25,7 @@ ret['created_this']
 ret['updated_this']
 '''
 
+
 class GitHubUser:
     def __init__(self, token):
         self.gapi = GitHubAPI.GitHubAPI(token)
@@ -88,7 +89,7 @@ class Post:
         self.pid = pid
 
     def create(self):
-        #self.post_db.new
+        # self.post_db.new
         pass
 
     def search(self, title: str):
@@ -119,6 +120,10 @@ class Gallery:
     def set(self, gid: int):
         self.gid = gid
 
+    def search_dict(self, title: str):
+        r = self.gall_db.search_title_(title)
+        return r
+
     def search(self, title: str):
         r = self.gall_db.search_title(title)
         return json.dumps(r)
@@ -132,6 +137,20 @@ class Gallery:
 
     def get_list(self):
         return json.dumps(self.gall_db.get_list())
+
+    def is_in(self, d):
+        l = self.gall_db.get_list()
+        if isinstance(d, int):
+            for i in l:
+                if i['gid'] == d:
+                    return True
+        elif isinstance(d, str):
+            for i in l:
+                if i['title'] == d:
+                    return True
+        else:
+            return False
+        return False
 
     def post_list(self):
         r = self.gall_db.post_list(self.gid)
