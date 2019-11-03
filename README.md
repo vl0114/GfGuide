@@ -6,7 +6,7 @@
 한림대학교 동아리 C애랑 태그팀 소속
 
 ## 본 프로젝트의 주소
-http://example.com
+http://www.ghguide.net
 
 ## 본 프로젝트의 라이선스
 https://github.com/vl0114/GhGuide/blob/master/LICENSE
