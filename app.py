@@ -207,6 +207,8 @@ def login_status():
 def logout():
     if 'gh_token' not in session:
         abort(403)
+    caching.Caching.rm(session['user_manager'])
+    caching.Caching.rm(session['user_manager'])
     if request.method == 'POST':
         if 'gh_token' not in session:
             return 'logouted'

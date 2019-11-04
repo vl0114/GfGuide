@@ -13,4 +13,5 @@ class Caching:
     @staticmethod
     def rm(key: str):
         if key in data:
-            data.pop(key)
+            r = data.pop(key)
+            del r
