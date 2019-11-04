@@ -30,6 +30,11 @@ def profile():
                            user_site=api.user_site())
 
 
+@app.route('/achievement')
+def achievement():
+    return '<body><script>alert("서비스 준비중 입니다"); window.location.href = "/";</script></body>'
+
+
 @app.route('/license')
 def redirect_license():
     return redirect('https://github.com/vl0114/GhGuide')
