@@ -65,12 +65,12 @@
     <!-- start -->
 
     <div class="row" style="margin-left: 50px; margin-right: 50px; margin-top: 50px">
-        <div class="col-xs-12">
-            <div class="row">
+        <div>
+            <div style="display: flex">
                 <div style="margin-right: 24px">
                     <img alt src="{{ img_src }}" width="140" height="140">
                 </div>
-                <div class="col-xs-9">
+                <div style="display: block">
                     <h3>{{ user_name }}</h3>
                     <a class="btn btn-block btn-social btn-github" href="{{ user_site }}" target="_blank">
                         <span class="fa fa-github">
@@ -89,7 +89,7 @@
 
     <div class="row" style="margin-left: 50px; margin-right: 50px; margin-top: 50px">
         <div class="tabbable w-100" id="tabs-382924">
-            <ul class="nav nav-tabs">
+            <ul class="nav nav-tabs" style="margin-bottom: 10px">
                 <li>
                     <div style="height: 3px; width: 10px"></div>
                 </li>
@@ -108,13 +108,16 @@
                 <div class="tab-pane active" id="tab_user_info">
                     <!-- 로그인한 유저의 정보 -->
 
-                    <div class="row repo-cards w-100 m-0" id="rc" style="display: none;">
-                        <div class="repo-card col-sm-12 col-md-6 m-0" v-for="val in repos">
-                            <h4><a v-bind:href="[[ val.html_url ]]" target="_blank" style="color: black">[[ val.full_name ]]</a></h4>
-                            <h6>스타: [[ val.star_count ]]</h6>
-                            <h6>포크: [[ val.fork_count ]]</h6>
-                            <h6>라이선스: [[ val.license ]]</h6>
-                            <h6>언어: [[ val.lang ]]</h6>
+                    <div class="repo-cards w-100 m-0" id="rc" style="display: none;">
+                        <div class="repo-card" v-for="val in repos">
+                            <h4><a v-bind:href="[[ val.html_url ]]" target="_blank"
+                                   style="color: black; border: 0; border-bottom: 2px;
+                                   border-color: #a0a0a0; border-style: solid">
+                                [[ val.full_name ]]</a></h4>
+                            <h6>Star: [[ val.star_count ]]</h6>
+                            <h6>Fork: [[ val.fork_count ]]</h6>
+                            <h6>License: [[ val.license ]]</h6>
+                            <h6>Language: [[ val.lang ]]</h6>
                         </div>
 
                     </div>
@@ -181,10 +184,9 @@
 
     .repo-card {
         background-color: #f0f0f0;
-        border: 0 solid #a0a0a0;
-        border-bottom-width: 2px;
-        border-right-width: 2px;
 
+        padding: 10px;
+        margin: 10px;
 
     }
 </style>
