@@ -23,12 +23,19 @@ def index():
 def profile():
     if 'gh_token' not in session:
         abort(403)
-    api = caching.Caching.get(session['user_manager'])
-    return render_template('page/profile.html',
-                           img_src=api.prof_img(),
-                           user_name=api.user_name(),
-                           user_site=api.user_site())
-
+    try:
+        api = caching.Caching.get(session['user_manager'])
+        return render_template('page/profile.html',
+                               img_src=api.prof_img(),
+                               user_name=api.user_name(),
+                               user_site=api.user_site())
+    except KeyError:
+        caching.Caching.rm(session['user_manager'])
+        caching.Caching.rm(session['user_manager'])
+        if 'gh_token' not in session:
+            return 'logouted'
+        session.pop('gh_token')
+        return '<body><script>alert("세션만료 다시 로그인해 주세요."); window.location.href = "/";</script></body>'
 
 @app.route('/achievement')
 def achievement():
