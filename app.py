@@ -1,6 +1,6 @@
 from flask import Flask, redirect, request, session, render_template, url_for, abort
-from src import GitHubLogin, GithubUser, caching, gh_db, gh_init, Setting, Acv
-import randstr
+from src import GitHubLogin, GithubUser, caching, gh_db, gh_init, Setting, Acv, db
+import randstr, json
 
 app = Flask(__name__)
 app.secret_key = 'dsadadsadasdadadsa'  # randstr.randstr(40)
@@ -36,9 +36,19 @@ def profile():
         session.pop('gh_token')
         return '<body><script>alert("세션만료 다시 로그인해 주세요."); window.location.href = "/";</script></body>'
 
+
 @app.route('/achievement')
 def achievement():
-    return '<body><script>alert("서비스 준비중 입니다"); window.location.href = "/";</script></body>'
+    if 'gh_token' not in session or session['gh_token'] is None:
+        abort(403)
+    return render_template('page/acv_list.html')
+
+
+@app.route('/acv/<aid>')
+def acv(aid: int):
+    if 'gh_token' not in session or session['gh_token'] is None:
+        abort(403)
+    return render_template('page/acv.html', aid=aid)
 
 
 @app.route('/license')
@@ -329,6 +339,23 @@ def get_token():
         abort(403)
     else:
         return session['gh_token']
+
+
+@app.route('/api/achv')
+def get_acv_list():
+    d = db.psql2()
+    x = list()
+    y = d.get('select * from achievement_list')
+    for i in y:
+        x.append(dict(i))
+    return json.dumps(x)
+
+
+@app.route('/api/achv/<pid>')
+def get_acv(pid: int):
+    d = db.psql2()
+    x = dict(d.get(f'select * from achievement where pid = {pid}')[0])
+    return json.dumps(x)
 
 
 if __name__ == '__main__':

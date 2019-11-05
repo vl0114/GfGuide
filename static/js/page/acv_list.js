@@ -1,10 +1,10 @@
-let gall_cards = new Vue(
+let acv_card = new Vue(
     {
-        el:"#glc",
+        el:"#alc",
         data:
             {
-                galls:[
-                    {img:"", title:"", info:"", gid:-1}
+                acvs:[
+                    {img:"", title:"", ainfo:"", aid:-1}
                 ]
 
             },
@@ -12,16 +12,16 @@ let gall_cards = new Vue(
     }
 );
 
-function gall_list() {
+function acv_list() {
     let requester = new XMLHttpRequest();
-    requester.open("GET", "/api/gallery");
+    requester.open("GET", "/api/achv");
     requester.onreadystatechange = function () {
         if (!(requester.readyState === 4 && requester.status === 200)) return;
-        let r = JSON.parse(requester.responseText);
+        let r = JSON.parse(requester.responseText)
         r.sort(function (a, b) {
-            return a.gid - b.gid;
+            return a.aid - b.aid;
         });
-        gall_cards.galls = r;
+        acv_card.acvs = r;
     };
     requester.send()
 }

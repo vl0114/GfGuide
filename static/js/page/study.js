@@ -25,6 +25,7 @@ function change(p)
     let requester = new XMLHttpRequest();
     requester.open("GET", "/api/post/".concat(p));
     requester.onreadystatechange = function(){
+        if (!(requester.readyState === 4 && requester.status === 200)) return;
         json_data = requester.responseText;
         let data = JSON.parse(json_data);
         postRender.Contents = data['contents'];
@@ -40,6 +41,7 @@ function posts(id) {
     requester2.open("GET", "/api/gallery/".concat(id));
     let data;
     requester2.onreadystatechange = function(){
+        if (!(requester2.readyState === 4 && requester2.status === 200)) return;
         post_list_json = requester2.responseText;
         data= JSON.parse(post_list_json);
         let p_list = [];

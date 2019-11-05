@@ -10,6 +10,7 @@ function getRepo() {
     let request = new XMLHttpRequest();
     request.open("GET", "/api/repos");
     request.onreadystatechange = function () {
+        if (!(request.readyState === 4 && request.status === 200)) return;
         if (request.status === 200) {
             repo_json_str = request.responseText;
             render(repo_json_str)
@@ -67,6 +68,7 @@ function prof_refresh() {
     let request = new XMLHttpRequest();
     request.open("GET", "/api/repos/refresh");
     request.onreadystatechange = function () {
+        if (!(request.readyState === 4 && request.status === 200)) return;
         if (request.status === 200) {
             repo_json_str = request.responseText;
             getRepo();

@@ -36,19 +36,7 @@
                         <li class="nav-item active">
                             <a class="nav-link" href="/achievement">도전과제</a>
                         </li>
-                        <!--
-                        <li class="nav-item dropdown active">
-                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown">메뉴</a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                 <a class="dropdown-item" href="#">학습하기</a>
-                                <a class="dropdown-item" href="#">가이드</a>
-                                <a class="dropdown-item" href="#">실습하기</a>
-                                <a class="dropdown-item" href="#">문서</a>
-                                <div class="dropdown-divider">
-                                </div>
-                            </div>
-                        </li>
-                        -->
+
                     </ul>
                 </div>
                 <a id="login-button" class="btn-block btn-social btn-github btn m-0" target="github_login"
@@ -66,15 +54,17 @@
 
     <div class="row" style="margin-left: 50px; margin-right: 50px; margin-top: 50px">
 
-        <div id="glc" class="gall-list-card row " style="display: flex;">
-            <div v-for="e in galls" class="gall-card col-xs-6">
+        <div id="alc" class="gall-list-card row " style="display: flex;">
+            <div v-for="e in acvs" class="gall-card col-xs-6">
                 <div style="margin: 10px; display: flex">
                     <div class="img-block">
-                        <img alt v-bind:src="[[ e.img ]]" width="100" height="100">
+                        <div style="min-width: 100px; min-height: 100px">
+                        <img alt v-bind:src="[[ e.img ]]" height="100">
+                        </div>
                     </div>
                     <div>
-                        <h3><a v-bind:href="[[ /study/ + e.gid ]]" style="color: black">[[ e.title ]]</a></h3>
-                        [[ e.info ]]
+                        <h3><a v-bind:href="[[ /acv/ + e.aid ]]" style="color: black">[[ e.title ]]</a></h3>
+                        [[ e.ainfo ]]
                     </div>
                 </div>
             </div>
@@ -102,10 +92,10 @@
 <!-- -->
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> <!-- 변경 필요 [https://cdn.jsdelivr.net/npm/vue] -->
 <script type="text/javascript" src="{{ url_for("static", filename="js/login.js") }}"></script>
-<script type="text/javascript" src="{{ url_for("static", filename="js/page/gall_list.js") }}"></script>
+<script type="text/javascript" src="{{ url_for("static", filename="js/page/acv_list.js") }}"></script>
 <script>
     checkLogin();
-    gall_list();
+    acv_list()
 
 
 </script>
