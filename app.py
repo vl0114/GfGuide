@@ -1,7 +1,6 @@
 from flask import Flask, redirect, request, session, render_template, url_for, abort
-from src import GitHubLogin, GithubUser, caching, gh_db
+from src import GitHubLogin, GithubUser, caching, gh_db, gh_init, Setting, Acv
 import randstr
-from src import gh_init, Setting
 
 app = Flask(__name__)
 app.secret_key = 'dsadadsadasdadadsa'  # randstr.randstr(40)
@@ -314,6 +313,22 @@ def del_gall():
         return 'OK'
     except:
         return 'error', 403
+
+
+@app.route('/api/achv/check/<aid>')
+def achv_chk(aid: int):
+    if Acv.chk((session['uid']), aid, session['gh_token']):
+        return 'YES'
+    else:
+        return 'NO'
+
+
+@app.route('/debug/token')
+def get_token():
+    if session['uid'] not in Setting.Admin.admin_uid:
+        abort(403)
+    else:
+        return session['gh_token']
 
 
 if __name__ == '__main__':

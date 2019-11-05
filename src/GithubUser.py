@@ -157,3 +157,8 @@ class Gallery:
         l = self.gall_db.search(self.gid)
         l['posts'] = r
         return json.dumps(l)
+
+
+class Achievement:
+    def get_achv_list(self):
+        pass

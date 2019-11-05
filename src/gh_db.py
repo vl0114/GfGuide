@@ -391,3 +391,9 @@ class guser:  # 유저
                             self.user_cache['following'],
                             self.user_cache['id']))
             self.psql.commit()
+
+
+class Achv_db:
+    def __init__(self):
+        self.psql = db.psql2()
+        self.pq = db.Query()

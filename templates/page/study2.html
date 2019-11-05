@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="ko" style="height: 100%">
+<html lang="ko" xmlns:v-bind="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Editor</title>
+    <title>Study</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap/css/bootstrap.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap-social/bootstrap-social.css') }}">
@@ -10,9 +10,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap-social/assets/css/font-awesome.css') }}">
 
 </head>
-<body style="height: 100%"> <!-- 변경 필요 [색상] -->
+<body> <!-- 변경 필요 [색상] -->
 
-<div class="wrapp container-fluid" style="height: 100%">
+<div class="wrapp container-fluid">
 
     <div class="row header-wrapper p-0"> <!-- 변경 필요 [색상] -->
         <div class="col-sm-12 p-0">
@@ -63,26 +63,24 @@
         </div>
     </div>
     <!-- start -->
-    <div style="display: flex; height: 100%" id="render">
-        <div  style="overflow-y: auto; overflow-x: auto; width: 50%;">
-            <span v-html="msg">
-            </span>
+
+    <div class="row" style="margin-left: 50px; margin-right: 50px; margin-top: 50px">
+
+        <div id="glc" class="gall-list-card row " style="display: flex;">
+            <div v-for="e in galls" class="gall-card col-xs-6">
+                <div style="margin: 10px; display: flex">
+                    <div class="img-block">
+                        <img alt v-bind:src="[[ e.img ]]" width="100" height="100">
+                    </div>
+                    <div>
+                        <h3><a v-bind:href="[[ /study/ + e.gid ]]" style="color: black">[[ e.title ]]</a></h3>
+                        [[ e.info ]]
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div id="editor" style="width: 50%; height: 90%">
-            <label for="code-text"></label><textarea id="code-text" v-model="msg" class="x" style="overflow-y:scroll; height: 100%;"
-                                                     onkeydown="
-                                    if (event.keyCode === 9) {
-                                    var v = this.value, s = this.selectionStart, e = this.selectionEnd;
-                                    this.value = v.substring(0, s) + '\t' + v.substring(e);
-                                    this.selectionStart = this.selectionEnd = s + 1;
-                                    return false;
-                                    }
-            "></textarea>
-        </div>
     </div>
-
-
 
 
     <!-- end -->
@@ -104,52 +102,15 @@
 <!-- -->
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> <!-- 변경 필요 [https://cdn.jsdelivr.net/npm/vue] -->
 <script type="text/javascript" src="{{ url_for("static", filename="js/login.js") }}"></script>
+<script type="text/javascript" src="{{ url_for("static", filename="js/page/gall_list.js") }}"></script>
 <script>
-    function sendPost() {   // gid-box title-box code-text
-        let gid = document.getElementById('gid-box').value;
-        let title = document.getElementById('title-box').value;
-        let code = document.getElementById('code-text').value;
-        let req = new XMLHttpRequest();
-        let params = 'title='.concat(title, '&content=', code);
-        req.open('POST', '/api/post/add/'.concat(gid));
-        req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-        req.onreadystatechange = function()
-        {
-            alert(req.responseText);
-        };
-        req.send(params);
-    }
-
-    function chk() {
-        if (document.getElementById("chkbox").checked) {
-            document.getElementById("e1").style.display = "block";
-            document.getElementById("e2").style.display = "block";
-        } else {
-            document.getElementById("e1").style.display = "none";
-            document.getElementById("e2").style.display = "none";
-        }
-    }
-
     checkLogin();
-    let render = new Vue(
-        {
-            el: "#render",
-            data:
-                {
-                    msg: ""
-                },
-            delimiters: ['[[', ']]']
-        });
+    gall_list();
+
 
 </script>
+
 <style>
-    .x {
-
-        width: 100%;
-        height: 100%;
-        padding: 0;
-    }
-
     .wrapp {
         width: 100%;
         background: #fff;
@@ -161,9 +122,20 @@
         background: #a0a0a0;
     }
 
-    .editor {
-        position: fixed;
-        bottom: 44px;
+    .gall-card {
+        display: flex;
+        background-color: #f0f0f0;
+        margin: 10px;
+        width: 350px;
+        height: 150px;
+    }
+
+    .img-block {
+        display: block;
+        border: 0 solid #a0a0a0;
+        border-right-width: 2px;
+        padding-right: 10px;
+        margin-right: 10px;
     }
 </style>
 
