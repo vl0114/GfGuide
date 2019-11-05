@@ -59,12 +59,13 @@
         </div>
     </div>
     <!-- start -->
-    <div id="acv" class="w-100" style="margin: 50px; height: 800px;">
-        <div style="height: 80%">
-            <span v-html="contents"></span>
+    <div id="acv" style="margin: 50px; height: 600px;">
+        <div>
+            <div style="display: block">
+                <div style="height: 600px"><span v-html="contents"></span></div>
+                <div><a class="btn btn-secondary" onclick="checkThis()">검사하기</a></div>
+            </div>
         </div>
-        <div style="height: 20%">
-            <a class="btn btn-secondary" onclick="checkThis()">검사하기</a>
         </div>
     </div>
     <!-- end -->
