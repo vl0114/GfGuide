@@ -3,7 +3,7 @@ from src import GitHubLogin, GithubUser, caching, gh_db, gh_init, Setting, Acv, 
 import randstr, json
 
 app = Flask(__name__)
-app.secret_key = 'dsadadsadasdadadsa'  # randstr.randstr(40)
+app.secret_key = Setting.Secret.FLASK_SECRET
 
 
 #### page ####
