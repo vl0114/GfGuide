@@ -17,10 +17,6 @@
 
 ```python3
 class SECRET:
-    def importSetting(self, path = './Setting.json'):
-        j = open(path, 'r')
-
-
     GITHUB_CLIENT_ID = "GITHUB_CLIENT_ID"
     GITHUB_CLIENT_SECRET = "GITHUB_CLIENT_SECRET"
     SUPER_SECRET = 'FLASK_SUPER_SECRET'
