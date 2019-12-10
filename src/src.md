@@ -23,7 +23,7 @@ GitHub의 정보를 얻어오는 모듈<br>
 ## `gh_init`
 필요 x
 
-## utils.py
+## `utils.py`
 유틸 함수, 보안 방어 함수 정의
 
 # TODO
